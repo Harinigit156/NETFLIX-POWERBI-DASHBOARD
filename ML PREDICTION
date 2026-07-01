@@ -1,0 +1,118 @@
+import pandas as pd
+
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import classification_report
+
+df = pd.read_csv("netflix_titles.csv")
+
+print("FIRST 5 ROWS")
+print(df.head())
+
+df = df[[
+    "type",
+    "country",
+    "release_year",
+    "duration",
+    "listed_in",
+    "rating"
+]]
+
+print("\nSELECTED COLUMNS")
+print(df.head())
+
+df["country"].fillna("Unknown", inplace=True)
+df["duration"].fillna("Unknown", inplace=True)
+df["listed_in"].fillna("Unknown", inplace=True)
+df["rating"].fillna("Unknown", inplace=True)
+
+print("\nMISSING VALUES AFTER CLEANING")
+print(df.isnull().sum())
+
+original_df = df.copy()
+
+type_encoder = LabelEncoder()
+country_encoder = LabelEncoder()
+duration_encoder = LabelEncoder()
+genre_encoder = LabelEncoder()
+rating_encoder = LabelEncoder()
+
+df["type"] = type_encoder.fit_transform(df["type"])
+df["country"] = country_encoder.fit_transform(df["country"])
+df["duration"] = duration_encoder.fit_transform(df["duration"])
+df["listed_in"] = genre_encoder.fit_transform(df["listed_in"])
+df["rating"] = rating_encoder.fit_transform(df["rating"])
+
+print("\nENCODED DATA")
+print(df.head())
+
+X = df[[
+    "type",
+    "country",
+    "release_year",
+    "duration",
+    "listed_in"
+]]
+
+y = df["rating"]
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X,
+    y,
+    test_size=0.2,
+    random_state=42
+)
+
+print("\nTRAINING DATA SHAPE")
+print(X_train.shape)
+
+print("\nTESTING DATA SHAPE")
+print(X_test.shape)
+
+model = RandomForestClassifier(
+    n_estimators=100,
+    random_state=42
+)
+
+model.fit(X_train, y_train)
+
+print("\nMODEL TRAINED SUCCESSFULLY")
+
+y_pred = model.predict(X_test)
+
+print("\nFIRST 10 PREDICTIONS")
+print(y_pred[:10])
+
+accuracy = accuracy_score(y_test, y_pred)
+
+print("\nMODEL ACCURACY")
+print(accuracy)
+
+print("\nCLASSIFICATION REPORT")
+print(classification_report(y_test, y_pred))
+
+full_predictions = model.predict(X)
+
+print("\nFULL DATASET PREDICTIONS DONE")
+
+predicted_ratings_text = rating_encoder.inverse_transform(
+    full_predictions
+)
+
+print("\nINVERSE TRANSFORM COMPLETED")
+
+final_df = original_df.copy()
+
+final_df["predicted_rating"] = predicted_ratings_text
+
+print("\nFINAL READABLE DATASET")
+print(final_df.head())
+
+final_df.to_csv(
+    "final_netflix_rating_predictions.csv",
+    index=False
+)
+
+print("\nFINAL DATASET SAVED SUCCESSFULLY")
