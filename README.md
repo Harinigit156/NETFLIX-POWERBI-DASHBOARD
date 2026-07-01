@@ -1,3 +1,2 @@
 This project presents an interactive Netflix Dashboard built using Microsoft Power BI. The dashboard provides insights into Netflix's content library, allowing users to explore movies and TV shows based on various attributes such as genre, country, release year, ratings, and duration.
-
 The objective of this project is to demonstrate data visualization, dashboard design, and business intelligence skills using Power BI.
